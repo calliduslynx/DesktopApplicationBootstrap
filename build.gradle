@@ -1,0 +1,64 @@
+// ***********************************
+// ***** kotlin build part
+// ***********************************
+buildscript {
+    ext.kotlin_version = '1.3.11'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+// ***********************************
+// ***** plugins
+// ***********************************
+apply plugin: "kotlin"
+apply plugin: "java"
+apply plugin: "application"             // <-- provides "run" - task
+
+// ***********************************
+// ***** parameters
+// ***********************************
+group = "de.mabe.catstore"
+
+mainClassName = "de.mabe.catstore.MainKt"
+
+// ***********************************
+// ***** configuration
+// ***********************************
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+compileKotlin {
+    kotlinOptions {
+        apiVersion = "1.1"
+        languageVersion = "1.1"
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        apiVersion = "1.1"
+        languageVersion = "1.1"
+        jvmTarget = "1.8"
+    }
+}
+
+// ***********************************
+// ***** dependencies
+// ***********************************
+repositories { mavenCentral() }
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.2.50"                        // Kotlin support
+    compile "org.jetbrains.kotlin:kotlin-reflect:1.2.50"
+
+    compile "org.slf4j:log4j-over-slf4j:1.7.21"                                     // Logs
+    compile 'org.apache.commons:commons-lang3:3.4'
+
+    compile 'org.openjfx:javafx-controls:12-ea+4'
+}
