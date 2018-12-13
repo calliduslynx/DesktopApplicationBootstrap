@@ -5,11 +5,13 @@ buildscript {
     ext.kotlin_version = '1.3.11'
 
     repositories {
-        mavenCentral()
+        mavenCentral()                  // <-- required by kotlin
+        jcenter()                       // <-- required by launch4j
     }
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'edu.sc.seis.gradle:launch4j:2.4.4'
     }
 }
 
@@ -19,6 +21,7 @@ buildscript {
 apply plugin: "kotlin"
 apply plugin: "java"
 apply plugin: "application"             // <-- provides "run" - task
+apply plugin: "edu.sc.seis.launch4j"    // <-- https://github.com/TheBoegl/gradle-launch4j
 
 // ***********************************
 // ***** parameters
@@ -32,6 +35,11 @@ mainClassName = "de.mabe.catstore.MainKt"
 // ***********************************
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
+
+launch4j {
+    mainClassName = "de.mabe.catstore.MainKt"
+    icon = "${projectDir}/src/main/resources/catstore.ico"
+}
 
 compileKotlin {
     kotlinOptions {
@@ -59,7 +67,10 @@ tasks.withType(Test) {
 // ***********************************
 // ***** dependencies
 // ***********************************
-repositories { mavenCentral() }
+repositories {
+    mavenCentral()
+    jcenter()
+}
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.11"                        // Kotlin support
