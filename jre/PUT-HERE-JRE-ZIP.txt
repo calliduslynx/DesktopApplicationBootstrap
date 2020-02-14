@@ -1,0 +1,3 @@
+Place the zipped JRE here with name
+
+    java.zip

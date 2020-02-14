@@ -2,7 +2,8 @@
 // ***** kotlin build part
 // ***********************************
 buildscript {
-    ext.kotlin_version = '1.3.11'
+    ext.kotlin_version = '1.3.61'
+    ext.jvm_target = '1.8'
 
     repositories {
         mavenCentral()                  // <-- required by kotlin
@@ -11,7 +12,7 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'edu.sc.seis.gradle:launch4j:2.4.4'
+        classpath 'edu.sc.seis.gradle:launch4j:2.4.6'
     }
 }
 
@@ -26,33 +27,64 @@ apply plugin: "edu.sc.seis.launch4j"    // <-- https://github.com/TheBoegl/gradl
 // ***********************************
 // ***** parameters
 // ***********************************
-group = "de.mabe.catstore"
 
+group = "de.mabe.catstore"
 mainClassName = "de.mabe.catstore.MainKt"
+
+
+// ***********************************
+// ***** launch4j
+// ***********************************
+launch4j {
+    outfile = "Catstore.exe"
+    mainClassName = this.mainClassName
+    icon = "${projectDir}/src/main/resources/catstore.ico"
+    bundledJrePath = "./java"
+}
+
+task exe {
+    dependsOn 'createExe', 'copyJre', 'createZipFile'
+}
+
+/** unzips the jre */
+task copyJre(type: Copy) {
+    def zipFile = file('./jre/java.zip')
+    from zipTree(zipFile).matching { include "*/**" }
+    into file('build/launch4j/java')
+    eachFile { fcp -> fcp.path = fcp.path.replaceFirst("^[^/]*/", '/') }
+    includeEmptyDirs false
+
+    mustRunAfter 'createExe'
+}
+
+task createZipFile(type: Zip) {
+    from './build/launch4j'
+    include '**'
+    archiveName launch4j.outfile.replace(".exe", ".zip")
+    destinationDir(file('./build/launch4j-zip'))
+
+    mustRunAfter 'copyJre'
+}
+
 
 // ***********************************
 // ***** configuration
 // ***********************************
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
-
-launch4j {
-    mainClassName = "de.mabe.catstore.MainKt"
-    icon = "${projectDir}/src/main/resources/catstore.ico"
-}
+sourceCompatibility = jvm_target
+targetCompatibility = jvm_target
 
 compileKotlin {
     kotlinOptions {
         apiVersion = "1.3"
         languageVersion = "1.3"
-        jvmTarget = "1.8"
+        jvmTarget = jvm_target
     }
 }
 compileTestKotlin {
     kotlinOptions {
         apiVersion = "1.3"
         languageVersion = "1.3"
-        jvmTarget = "1.8"
+        jvmTarget = jvm_target
     }
 }
 
@@ -73,13 +105,11 @@ repositories {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.11"                        // Kotlin support
-    compile "org.jetbrains.kotlin:kotlin-reflect:1.2.50"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"                        // Kotlin support
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
-    compile "org.slf4j:log4j-over-slf4j:1.7.21"                                     // Logs
-    compile 'org.apache.commons:commons-lang3:3.4'
+    implementation "org.slf4j:log4j-over-slf4j:1.7.21"                                     // Logs
+    implementation 'org.apache.commons:commons-lang3:3.4'
 
-    compile 'org.openjfx:javafx-controls:12-ea+4'
-
-    testCompile 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.12'
 }
